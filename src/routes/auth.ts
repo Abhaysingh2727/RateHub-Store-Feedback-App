@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { body } from 'express-validator';
+import { signup, login, changePassword } from '../controllers/authController.js';
+import { handleValidation } from '../middleware/validate.js';
+import { requireAuth } from '../middleware/auth.js';
+const router = Router();
+const nameRules = body('name').isLength({ min:20, max:60 });
+const emailRules = body('email').isEmail();
+const addressRules = body('address').isLength({ max:400 });
+const passwordRules = body('password').isStrongPassword({ minLength:8, maxLength:16, minUppercase:1, minSymbols:1, minNumbers:0, minLowercase:0 });
+router.post('/signup',[nameRules,emailRules,addressRules,passwordRules],handleValidation,signup);
+router.post('/login',[emailRules,body('password').isString()],handleValidation,login);
+router.post('/change-password',requireAuth,[ body('oldPassword').isString(), body('newPassword').isStrongPassword({ minLength:8, maxLength:16, minUppercase:1, minSymbols:1 }) ],handleValidation,changePassword);
+export default router;

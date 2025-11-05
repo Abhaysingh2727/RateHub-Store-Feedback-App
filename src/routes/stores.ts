@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { body, query } from 'express-validator';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+import { handleValidation } from '../middleware/validate.js';
+import { addStore, listStores, ownerDashboard } from '../controllers/storeController.js';
+const router = Router();
+router.post('/', requireAuth, requireRole(['ADMIN']), [ body('name').isLength({ min:1 }), body('email').isEmail(), body('address').isLength({ max:400 }), body('ownerId').optional().isInt() ], handleValidation, addStore);
+router.get('/', requireAuth, [ query('q').optional().isString() ], handleValidation, listStores);
+router.get('/owner/dashboard', requireAuth, requireRole(['OWNER']), ownerDashboard);
+export default router;
